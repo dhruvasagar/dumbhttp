@@ -1,0 +1,12 @@
+[package]
+name = "dumbhttp"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.56"
+hyper = "0.14.17"
+routerify = "3.0.0"
+tokio = { version = "1.17.0", features = ["full"] }
