@@ -1,24 +1,15 @@
-# -*- mode: dockerfile -*-
-#
-# An example Dockerfile showing how to build a Rust executable using this
-# image, and deploy it with a tiny Alpine Linux container.
+FROM rustlang/rust:nightly as builder
 
-# You can override this `--build-arg BASE_IMAGE=...` to use different
-# version of Rust or OpenSSL.
-ARG BASE_IMAGE=ekidd/rust-musl-builder:latest
+ENV APP_HOME /usr/src/app/
 
-# Our first FROM statement declares the build environment.
-FROM ${BASE_IMAGE} AS builder
+RUN rustup target add x86_64-unknown-linux-musl
+RUN apt-get update && apt-get install -y upx musl-tools
 
-# Add our source code.
-ADD --chown=rust:rust . ./
+COPY . $APP_HOME
+WORKDIR $APP_HOME
+RUN make build-linux
 
-# Build our application.
-RUN cargo build --release
-
-# Now, we need to build our _real_ Docker container, copying in `using-sqlx`.
 FROM scratch
-COPY --from=builder \
-    /home/rust/src/target/x86_64-unknown-linux-musl/release/dumbhttp \
-    /usr/local/bin/
-ENTRYPOINT ["/usr/local/bin/dumbhttp"]
+COPY --from=builder /usr/src/app/target/x86_64-unknown-linux-musl/release/dumbhttp /app/
+
+ENTRYPOINT ["/app/dummyhttp"]

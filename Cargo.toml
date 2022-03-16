@@ -1,6 +1,6 @@
 [package]
 name = "dumbhttp"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 license = "MIT"
 description = "A dumb http server that responds with a preconfigured http response"
