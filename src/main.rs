@@ -1,17 +1,18 @@
 use anyhow::{anyhow, Result};
 use hyper::{Body, Response, Server};
 use routerify::{Router, RouterService};
-use std::net::SocketAddr;
-use std::str::FromStr;
+use std::{net::SocketAddr, str::FromStr};
 
 #[tokio::main]
 pub async fn main() -> Result<()> {
     let router = Router::builder()
         .any(|_req| async move {
             let body = std::env::var("BODY").unwrap_or(String::new());
+            let status = std::env::var("STATUS").unwrap_or(String::from("200"));
+            let content_type = std::env::var("CONTENT_TYPE").unwrap_or(String::from("application/json"));
             Response::builder()
-                .header(hyper::header::CONTENT_TYPE, "application/json")
-                .status(hyper::StatusCode::OK)
+                .header(hyper::header::CONTENT_TYPE, content_type)
+                .status(status.as_str())
                 .body(Body::from(String::from(body)))
         })
         .build()
