@@ -1,4 +1,4 @@
-# Dumb Http v0.1.0
+# Dumb Http v0.1.1
 
 A dumb http server that responds with a preconfigured http response
 

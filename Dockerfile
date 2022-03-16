@@ -17,9 +17,8 @@ ADD --chown=rust:rust . ./
 RUN cargo build --release
 
 # Now, we need to build our _real_ Docker container, copying in `using-sqlx`.
-FROM alpine:latest
-
+FROM scratch
 COPY --from=builder \
     /home/rust/src/target/x86_64-unknown-linux-musl/release/dumbhttp \
     /usr/local/bin/
-CMD /usr/local/bin/dumbhttp
+ENTRYPOINT ["/usr/local/bin/dumbhttp"]
