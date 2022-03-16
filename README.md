@@ -32,6 +32,7 @@ date: Wed, 16 Mar 2022 04:48:38 GMT
 
 ```
 BODY='{"ok": true, "view": {}}' dumbhttp
+curl localhost:3000 -i
 HTTP/1.1 200 OK
 content-type: application/json
 content-length: 24
