@@ -12,4 +12,4 @@ RUN make build-linux
 FROM scratch
 COPY --from=builder /usr/src/app/target/x86_64-unknown-linux-musl/release/dumbhttp /app/
 
-ENTRYPOINT ["/app/dummyhttp"]
+ENTRYPOINT ["/app/dumbhttp"]
