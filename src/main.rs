@@ -1,11 +1,4 @@
-use hyper::{
-    Error,
-    Body,
-    Request,
-    Response,
-    Server,
-    service::{make_service_fn, service_fn},
-};
+use hyper::{Error, Body, Request, Response, Server, service::{make_service_fn, service_fn}};
 use std::{process, net::SocketAddr, str::FromStr};
 
 async fn any_handler(_req: Request<Body>) -> Result<Response<Body>, Error> {
