@@ -1,9 +1,14 @@
-use anyhow::{anyhow, Result};
-use hyper::{Body, Request, Response, Server};
-use routerify::{Router, RouterService};
+use hyper::{
+    Error,
+    Body,
+    Request,
+    Response,
+    Server,
+    service::{make_service_fn, service_fn},
+};
 use std::{process, net::SocketAddr, str::FromStr};
 
-async fn any_handler(_req: Request<Body>) -> Result<Response<Body>> {
+async fn any_handler(_req: Request<Body>) -> Result<Response<Body>, Error> {
     let body = std::env::var("BODY").unwrap_or(String::new());
     let status = std::env::var("STATUS").unwrap_or(String::from("200"));
     let content_type = std::env::var("CONTENT_TYPE").unwrap_or(String::from("application/json"));
@@ -11,11 +16,12 @@ async fn any_handler(_req: Request<Body>) -> Result<Response<Body>> {
     Ok(Response::builder()
         .header(hyper::header::CONTENT_TYPE, content_type)
         .status(status.as_str())
-        .body(Body::from(String::from(body)))?)
+        .body(Body::from(String::from(body)))
+        .unwrap())
 }
 
 #[tokio::main]
-pub async fn main() -> Result<()> {
+pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     tokio::spawn(async move {
         use tokio::signal::unix::{signal, SignalKind};
         let mut hup = signal(SignalKind::hangup()).unwrap();
@@ -33,20 +39,12 @@ pub async fn main() -> Result<()> {
         process::exit(0);
     });
 
-    let router = Router::builder()
-        .any(any_handler)
-        .build()
-        .unwrap();
-    let rs = match RouterService::new(router) {
-        Err(e) => Err(anyhow!(e)),
-        Ok(rs) => Ok(rs),
-    }?;
     let host = std::env::var("HOST").unwrap_or(String::from("0.0.0.0"));
     let port: u32 = std::env::var("PORT").unwrap_or(String::from("3000")).parse()?;
     let addr = SocketAddr::from_str(&format!("{}:{}", host, port))?;
-    println!("Server started listeninig on {}", addr);
-    if let Err(e) = Server::bind(&addr).serve(rs).await {
-        eprintln!("Server error: {}", e);
-    }
+    let service = make_service_fn(|_| async { Ok::<_, Error>(service_fn(any_handler)) } );
+    let server = Server::bind(&addr).serve(service);
+    println!("Listening on {}", addr);
+    server.await?;
     Ok(())
 }
