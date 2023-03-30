@@ -6,6 +6,8 @@ A dumb http server that responds with a preconfigured http response
 
 ### Running with no arguments always returns 200 on all interfaces at port 3000
 
+The host & port can be overriden via `HOST` and `PORT` env variables
+
 ```
 dumbhttp
 curl localhost:3000 -i
